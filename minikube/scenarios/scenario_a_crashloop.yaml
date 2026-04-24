@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: default
+  labels:
+    app: payment-service
+    scenario: crashloop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+      - name: payment-service
+        image: busybox:1.36
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "2026-04-25 03:12:01 INFO  PaymentService starting up..."
+            echo "2026-04-25 03:12:01 INFO  Loading PaymentHandler configuration..."
+            echo "2026-04-25 03:12:02 ERROR PaymentHandler: NullPointerException in PaymentHandler.process() at line 47"
+            echo "2026-04-25 03:12:02 ERROR   at com.resolvo.payments.PaymentHandler.process(PaymentHandler.java:47)"
+            echo "2026-04-25 03:12:02 ERROR   at com.resolvo.payments.PaymentController.handleRequest(PaymentController.java:23)"
+            echo "2026-04-25 03:12:02 ERROR Caused by: payment_data is null — null check was removed in recent refactor"
+            echo "2026-04-25 03:12:02 FATAL Unhandled exception — process exiting with code 1"
+            exit 1
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "250m"
+      restartPolicy: Always

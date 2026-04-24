@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-service
+  namespace: default
+  labels:
+    app: db-service
+    scenario: deadlock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-service
+  template:
+    metadata:
+      labels:
+        app: db-service
+    spec:
+      containers:
+      - name: db-service
+        image: busybox:1.36
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "2026-04-25 04:01:01 INFO  TransactionManager: Initializing connection pool (50 slots)"
+            echo "2026-04-25 04:01:02 ERROR TransactionManager: DEADLOCK detected"
+            echo "2026-04-25 04:01:02 ERROR   Transaction T1 (id=0x4f2a): waiting for exclusive lock on row 0x4f2a"
+            echo "2026-04-25 04:01:02 ERROR   Transaction T2 (id=0x3b1c): waiting for exclusive lock on row 0x3b1c"
+            echo "2026-04-25 04:01:02 ERROR   Deadlock cycle: T1 -> T2 -> T1"
+            echo "2026-04-25 04:01:02 ERROR   All 50/50 connection pool slots are occupied"
+            echo "2026-04-25 04:01:02 ERROR   New connections are being rejected"
+            echo "2026-04-25 04:01:03 WARN  Manual DBA intervention required to resolve lock contention"
+            echo "2026-04-25 04:01:03 ERROR TransactionManager: DEADLOCK detected (recurring, same transactions)"
+            # Keep running so we can read logs
+            while true; do
+              sleep 10
+              echo "2026-04-25 04:01:03 ERROR TransactionManager: still deadlocked..."
+            done
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+      restartPolicy: Always

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-hog-service
+  namespace: default
+  labels:
+    app: memory-hog-service
+    scenario: oom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memory-hog-service
+  template:
+    metadata:
+      labels:
+        app: memory-hog-service
+    spec:
+      containers:
+      - name: memory-hog-service
+        image: busybox:1.36
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "2026-04-25 03:45:01 INFO  MemoryAllocator: Service starting..."
+            echo "2026-04-25 03:45:01 INFO  MemoryAllocator: Allocating 10MB chunk #1"
+            echo "2026-04-25 03:45:02 INFO  MemoryAllocator: Allocating 10MB chunk #2"
+            echo "2026-04-25 03:45:03 INFO  MemoryAllocator: Allocating 10MB chunk #3"
+            echo "2026-04-25 03:45:04 WARN  MemoryAllocator: Memory usage at 85% of limit"
+            echo "2026-04-25 03:45:05 WARN  MemoryAllocator: Memory usage at 95% of limit"
+            # Consume memory until OOM kill
+            while true; do
+              dd if=/dev/zero of=/tmp/fill bs=1M count=5 2>/dev/null
+              sleep 1
+            done
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "50m"
+          limits:
+            memory: "32Mi"   # intentionally low — will OOM kill
+            cpu: "100m"
+      restartPolicy: Always

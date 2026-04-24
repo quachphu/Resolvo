@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0a0a0b;
+  color: #e8e8f0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111114;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a34;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a48;
+}
+
+/* Grid background pattern for trace panel */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Glow effect for active incidents */
+.glow-red {
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+}
+.glow-amber {
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+.glow-green {
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
+}
+.glow-purple {
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Trace step animation */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.trace-step {
+  animation: fadeSlideIn 0.25s ease-out forwards;
+}
+
+/* Cost meter pulse */
+@keyframes costPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.cost-pulse {
+  animation: costPulse 1.5s ease-in-out infinite;
+}
+
+/* Confidence bar fill animation */
+@keyframes fillBar {
+  from { width: 0%; }
+}
+
+.confidence-bar {
+  animation: fillBar 0.8s ease-out forwards;
+}
